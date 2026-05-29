@@ -22,8 +22,11 @@ contract CryticToFoundry is TargetFunctions, Test {
     }
 
     // Bridge: Foundry invariant runner calls this; it delegates to property_
-    // functions.
+    // functions. Add one assert() per property_ function defined in
+    // Properties.sol. Generated stubs from the defi-spec-driven skill will be
+    // wired here during
+    // project setup.
     function invariant_properties() public pure {
-        assert(property_numberChangesOnlyViaExplicitCall());
+        assert(property_example_stub());
     }
 }

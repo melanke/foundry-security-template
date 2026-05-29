@@ -6,18 +6,23 @@ import {BeforeAfter} from "./BeforeAfter.sol";
 // Protocol invariants. Each property_ function must return true at all times.
 // Medusa and Echidna will flag any execution sequence that returns false.
 //
-// Add your invariants here. See INVARIANTS.md for the full list and their
-// rationale. Every invariant in that file should have a corresponding property_
-// function here.
+// Naming convention: property_{invariant_slug_underscored}
+//   INV-vault-solvency   →  property_vault_solvency()
+//   INV-share-monotonic  →  property_share_monotonic()
+//
+// Every invariant in .specs/economics/INVARIANTS.md (or INVARIANTS.md if
+// you are not using the defi-spec-driven workflow) must have a corresponding
+// function here. The slug in the function name is the link between the spec
+// and the running fuzzer — keep them in sync.
+//
+// Stubs are generated during project setup from the spec invariants.
+// Replace `return true;` with the actual property check for each one.
 abstract contract Properties is BeforeAfter {
-    // Example: once set, the counter number can only change via explicit calls.
-    // (This is trivially true for Counter — replace with real protocol
-    // invariants.)
-    function property_numberChangesOnlyViaExplicitCall()
-        public
-        pure
-        returns (bool)
-    {
+    // TODO: replace this example with your protocol invariants.
+    // Each stub is generated from an INV-* entry in
+    // .specs/economics/INVARIANTS.md. Example stub — delete when real
+    // invariants are added:
+    function property_example_stub() public pure returns (bool) {
         return true;
     }
 }

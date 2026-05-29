@@ -1,0 +1,29 @@
+name: NatSpec
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**/*.sol"
+
+jobs:
+  lintspec:
+    name: NatSpec Completeness
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: beeb/lintspec@v0.12.2
+        # Pin the action tag to a specific lintspec release.
+        # Check https://github.com/beeb/lintspec/releases for newer tags and
+        # update here when upgrading lintspec locally (cargo install lintspec).
+        with:
+          paths: "src"
+          fail-on-problem: "true"
+          # Reads .lintspec.toml from the repo root for per-project configuration.
+          # lintspec enforces @notice, @param, and @return on every public and
+          # external function, event, error, and struct. Inline PR annotations
+          # show exactly which tag is missing on which line.

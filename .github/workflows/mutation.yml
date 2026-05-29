@@ -1,0 +1,50 @@
+name: Mutation Testing
+
+# Mutation testing is expensive: slither-mutate invokes a full crytic-compile
+# cycle per mutant (~30-40s each). A contract with 50 mutants takes ~30 minutes.
+# Running on every PR is impractical for non-trivial codebases.
+#
+# Default: run nightly on main. This gives daily signal without blocking PRs.
+# Alternative: add a `workflow_dispatch` trigger and run manually before audits.
+# To enable per-PR: add `pull_request: { branches: [main] }` and accept the cost.
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 03:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  mutation:
+    name: Mutation Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "v1.7.0"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install slither-analyzer
+
+      - name: Run mutation testing on src/
+        run: |
+          slither-mutate . \
+            --test-cmd "forge test" \
+            --test-dir test/ \
+            --ignore-dirs lib/ \
+            --timeout 120
+        # Survivors are reported but do not fail CI (slither-mutate exits 0).
+        # Review the job output and for each survivor choose:
+        #   - Semantically equivalent (e.g., `a++` vs `++a` where result unused):
+        #     document in KNOWN_ISSUES.md.
+        #   - Real gap: write the missing assertion and document the fix.
+        #
+        # To scope to specific contracts: add --contract-names "Foo,Bar"
+        # To limit by path: pass the .sol file instead of "." as the target.

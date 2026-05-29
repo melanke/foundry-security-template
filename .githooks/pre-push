@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# pre-push: run the full test suite before anything reaches the remote.
+# If tests become slow enough to impede flow, move the heavy tests to CI-only
+# and keep only a fast smoke subset here.
+set -euo pipefail
+
+echo "→ forge test"
+forge test

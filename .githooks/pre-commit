@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# pre-commit: fast, deterministic checks — fail here before wasting CI minutes.
+set -euo pipefail
+
+echo "→ forge fmt --check"
+forge fmt --check
+
+echo "→ forge build"
+forge build

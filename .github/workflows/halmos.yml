@@ -1,0 +1,51 @@
+name: Halmos
+
+# Formal verification via symbolic execution (https://github.com/a16z/halmos).
+# Unlike fuzz tests, a passing check_ function is a *proof* — no counterexample
+# exists within the specified bounds. Unbounded loops and complex state spaces
+# may require increasing --loop or --width, which increases solver time.
+#
+# Runs nightly because solver time scales with contract complexity.
+# For simple contracts, this finishes in seconds.
+
+on:
+  schedule:
+    - cron: "0 4 * * *"  # 04:00 UTC daily (after Medusa)
+  workflow_dispatch:
+
+jobs:
+  halmos:
+    name: Halmos Symbolic Proofs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "v1.7.0"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install halmos
+        # Pin a version for reproducibility once you've validated it works:
+        # pip install halmos==0.3.3
+
+      - name: Run Halmos
+        run: |
+          halmos \
+            --match-contract "ProofTest$" \
+            --loop 4 \
+            --solver-timeout-assertion 30000
+          # --match-contract: run proofs in contracts ending with "ProofTest"
+          # --loop 4: unroll loops up to 4 times (increase for deeper proofs)
+          # --solver-timeout-assertion: 30s per assertion before marking unknown
+          #
+          # If a check_ times out (marked "unknown"), either:
+          #   - Increase --solver-timeout-assertion
+          #   - Add vm.assume() to tighten the input space
+          #   - Break the property into smaller, bounded checks

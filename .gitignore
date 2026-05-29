@@ -1,0 +1,27 @@
+# Foundry build artifacts
+/out
+/cache
+/broadcast
+
+# Coverage
+lcov.info
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+corpus/
+corpus-echidna/
+mutation_campaign/
+crytic-export/
+slither_results.json

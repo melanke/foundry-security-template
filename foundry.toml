@@ -1,0 +1,39 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.25"
+optimizer = true
+
+# optimizer_runs tradeoff:
+#   1       → smallest bytecode (for contracts near the EIP-170 24,576B limit)
+#   200     → balanced default
+#   10_000+ → cheapest repeated calls (for pure math libraries)
+optimizer_runs = 200
+ast = true
+
+[profile.coverage]
+# Coverage distorts gas readings; run gas-benchmark tests only under the default profile.
+# Usage: FOUNDRY_PROFILE=coverage forge coverage --report lcov
+# In gas tests: skip with `if (vm.envOr("FOUNDRY_PROFILE", string("default")) == "coverage") return;`
+
+[fmt]
+line_length = 80
+int_types = "long"
+number_underscore = "thousands"
+bracket_spacing = false
+wrap_comments = true
+
+[fuzz]
+runs = 1000
+max_test_rejects = 65536
+
+[invariant]
+runs = 256
+depth = 15
+fail_on_revert = false
+
+[rpc_endpoints]
+# mainnet  = "${MAINNET_RPC_URL}"
+# arbitrum = "${ARBITRUM_RPC_URL}"
+# base     = "${BASE_RPC_URL}"

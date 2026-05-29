@@ -1,0 +1,67 @@
+name: Medusa
+
+# Property-based fuzzing with Medusa (https://github.com/crytic/medusa).
+# Runs nightly with corpus persistence — the corpus accumulates across runs,
+# dramatically increasing coverage over time. A 10-minute nightly run is far
+# more effective than any number of short PR-scoped runs.
+#
+# If Medusa finds a violation, it produces a call sequence that reproduces it.
+# Add that sequence as a regression test, fix the invariant, then re-run.
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # 02:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  medusa:
+    name: Medusa Fuzzing
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "v1.7.0"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install crytic-compile
+
+      - name: Install Medusa
+        run: |
+          MEDUSA_VERSION="1.5.1"
+          # Update MEDUSA_VERSION intentionally — same discipline as Foundry version pin.
+          curl -L \
+            "https://github.com/crytic/medusa/releases/download/v${MEDUSA_VERSION}/medusa-linux-x64.tar.gz" \
+            -o /tmp/medusa.tar.gz
+          tar -xzf /tmp/medusa.tar.gz -C /usr/local/bin
+          medusa --version
+
+      - name: Restore corpus cache
+        uses: actions/cache/restore@v4
+        with:
+          path: corpus/
+          key: medusa-corpus-${{ github.sha }}
+          restore-keys: medusa-corpus-
+          # Corpus accumulates over time — each nightly run builds on the last.
+          # The restore-keys fallback picks up the most recent cache even if the
+          # exact key doesn't match.
+
+      - name: Run Medusa
+        run: |
+          medusa fuzz --config medusa.json --timeout 600
+          # 600 seconds (10 minutes) per nightly run.
+          # Adjust timeout based on protocol complexity and CI budget.
+
+      - name: Save corpus cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: corpus/
+          key: medusa-corpus-${{ github.sha }}

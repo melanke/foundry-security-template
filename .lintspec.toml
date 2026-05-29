@@ -1,0 +1,102 @@
+[lintspec]
+paths = []
+exclude = []
+inheritdoc = false
+# inheritdoc: require @inheritdoc on items that implement an interface method.
+# Set to true when your contracts implement interfaces — then @inheritdoc is
+# preferred over repeating NatSpec verbatim. Leave false for standalone contracts.
+inheritdoc_override = false
+notice_or_dev = false
+parallel = 4
+
+[output]
+json = false
+compact = false
+sort = false
+stdout = false
+exit_zero = false
+
+[constructor]
+notice = "ignored"
+dev = "ignored"
+param = "required"
+
+[contract]
+title = "ignored"
+author = "ignored"
+notice = "ignored"
+dev = "ignored"
+
+[interface]
+title = "ignored"
+author = "ignored"
+notice = "ignored"
+dev = "ignored"
+
+[library]
+title = "ignored"
+author = "ignored"
+notice = "ignored"
+dev = "ignored"
+
+[enum]
+notice = "required"
+dev = "ignored"
+param = "ignored"
+
+[error]
+notice = "required"
+dev = "ignored"
+param = "required"
+
+[event]
+notice = "required"
+dev = "ignored"
+param = "required"
+
+[function.private]
+notice = "ignored"
+dev = "ignored"
+param = "ignored"
+return = "ignored"
+
+[function.internal]
+notice = "ignored"
+dev = "ignored"
+param = "ignored"
+return = "ignored"
+
+[function.public]
+notice = "required"
+dev = "ignored"
+param = "required"
+return = "required"
+
+[function.external]
+notice = "required"
+dev = "ignored"
+param = "required"
+return = "required"
+
+[modifier]
+notice = "required"
+dev = "ignored"
+param = "required"
+
+[struct]
+notice = "required"
+dev = "ignored"
+param = "ignored"
+
+[variable.private]
+notice = "ignored"
+dev = "ignored"
+
+[variable.internal]
+notice = "ignored"
+dev = "ignored"
+
+[variable.public]
+notice = "required"
+dev = "ignored"
+return = "required"

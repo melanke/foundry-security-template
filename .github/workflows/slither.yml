@@ -1,0 +1,38 @@
+name: Slither
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  slither:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "v1.7.0"
+
+      - uses: crytic/slither-action@v0.4.0
+        with:
+          target: "."
+          slither-config: slither.config.json
+          fail-on: all
+          # Slither runs as a separate job because failures have different implications
+          # than test failures: a test failure means broken code; a Slither warning
+          # may be broken code *or* an accepted trade-off you documented.
+          #
+          # Triage workflow for every finding:
+          #   1. Actionable → fix it
+          #   2. Accepted trade-off → suppress at the narrowest scope:
+          #      - single occurrence: `// slither-disable-next-line <detector>` with a comment
+          #      - multi-line: `// slither-disable-start/end <detector>`
+          #      - whole codebase: add to slither.config.json detectors_to_exclude
+          #      In all cases, add an entry to KNOWN_ISSUES.md explaining why.

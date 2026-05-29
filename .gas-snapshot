@@ -1,0 +1,3 @@
+CounterTest:testFuzz_SetNumber(uint256) (runs: 1000, μ: 25748, ~: 28435)
+CounterTest:test_Increment() (gas: 28448)
+CryticToFoundry:invariant_properties() (runs: 256, calls: 3840, reverts: 19)

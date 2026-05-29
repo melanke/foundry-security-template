@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "v1.7.0"
+          # Pin Foundry like a dependency. Gas semantics and compiler behavior
+          # can shift between versions — reproducible builds require a fixed version.
+          # Update this intentionally; never let CI pull "latest" silently.
+
+      - name: Cache forge artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry/cache
+            out/
+            cache/
+          key: forge-${{ runner.os }}-${{ hashFiles('foundry.toml', 'lib/**') }}
+          restore-keys: forge-${{ runner.os }}-
+          # Caches solc binaries and compiled artifacts. Cache is invalidated when
+          # foundry.toml or any dependency changes — intentional, not a bug.
+
+      - name: Check formatting
+        run: forge fmt --check
+        # Fails before compiling — fast feedback, and formatting noise never
+        # reaches code review. Configured in [fmt] block of foundry.toml.
+
+      - name: Build
+        run: forge build
+        # Run separately from tests: compiler errors produce cleaner output than
+        # test failures caused by compile errors. Warnings still pass the build —
+        # treat any warning as a signal to act on immediately.
+
+      - name: Enforce EIP-170 size limit
+        run: |
+          SIZES=$(forge build --sizes --json)
+          VIOLATIONS=$(echo "$SIZES" | jq -r '
+            to_entries[]
+            | select(.value.runtime_size > 24576)
+            | "  \(.key): \(.value.runtime_size)B (limit: 24576B)"
+          ')
+          if [ -n "$VIOLATIONS" ]; then
+            echo "EIP-170 violations detected:"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "All contracts within EIP-170 limit"
+        # Note: forge build --sizes --json returns an object keyed by contract name.
+        # The article's original `[.[] | select(...)]` was wrong for this format —
+        # `to_entries[]` is required to iterate over the object values.
+
+      - name: Test
+        run: forge test -vvv
+
+      - name: Coverage report
+        run: forge coverage --report lcov
+        # Generates lcov.info for local tooling (VS Code Coverage Gutters).
+        # No hard threshold here — define your floor when the codebase matures.
+        # Run under FOUNDRY_PROFILE=coverage to skip gas-benchmark tests.
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov
+          path: lcov.info
+          retention-days: 7

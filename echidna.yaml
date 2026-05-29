@@ -1,0 +1,19 @@
+testMode: property
+prefix: "property_"
+seqLen: 100
+testLimit: 1000000
+corpusDir: "corpus-echidna"
+cryticArgs:
+  - "--foundry-compile-all"
+deployer: "0x30000"
+sender:
+  - "0x10000"
+  - "0x20000"
+  - "0x30000"
+# Exclude Foundry test infrastructure from the fuzz target set.
+# setUp() re-deploys contracts — calling it mid-sequence would corrupt state.
+filterFunctions:
+  - "setUp()"
+  - "invariant_properties()"
+  - "failed()"
+  - "IS_TEST()"

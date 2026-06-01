@@ -48,6 +48,18 @@ manually reformat code — let the tool own formatting.
 **`forge build` warnings**: zero warnings is the policy. Fix the root cause; do not
 suppress without a documented reason.
 
+**`forge build` lint findings** (`forge-lint`): Foundry's built-in linter runs
+automatically during `forge build`. Treat findings the same as `forge build` warnings —
+fix the root cause first. If a finding is a false positive or an accepted trade-off,
+suppress inline with a reason comment on the line above. No `KNOWN_ISSUES.md` entry
+required, but the reason must be explicit.
+
+```solidity
+// Checked above: require(x <= type(uint112).max) ensures no truncation.
+// forge-lint: disable-next-line(unsafe-typecast)
+_reserve0 = uint112(x);
+```
+
 **`lintspec` failures**: add missing `@notice`, `@param`, `@return` tags to the
 flagged function. Every public and external function, event, error, and struct
 requires NatSpec.
@@ -300,7 +312,7 @@ Before every commit, all of the following must be true:
 
 1. `forge fmt --check` passes with no diff
 2. `lintspec src/` passes
-3. `forge build --sizes` is clean — zero warnings, no contract exceeds 24kB
+3. `forge build --sizes` is clean — zero warnings, no forge-lint findings, no contract exceeds 24kB
 4. `slither src/` has no unacknowledged findings (all findings either fixed or in `KNOWN_ISSUES.md`)
 5. `semgrep --config /tmp/decurity-semgrep/solidity/ --config .semgrep/ src/` has no findings (suppress false positives inline with `// nosemgrep: rule-id`)
 6. `forge test` passes

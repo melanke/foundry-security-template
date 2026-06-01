@@ -353,10 +353,30 @@ function withdraw(uint256 assetAmount_, uint256 maxSlippageBps_) external { ... 
 
 When the unit is non-obvious, reinforce it in `@param`.
 
+### Interfaces
+
+Every production contract must have a corresponding interface in
+`src/interfaces/IContractName.sol`. The interface is the canonical API surface:
+function signatures, NatSpec, custom errors, and events all live there.
+The implementation contract imports and inherits the interface, then uses
+`/// @inheritdoc IContractName` on every function — never duplicate NatSpec.
+
+```
+src/
+  interfaces/
+    IVault.sol      ← NatSpec, errors, events, signatures
+  Vault.sol         ← inherits IVault; uses @inheritdoc throughout
+```
+
+Generate the interface file from `.specs/interface/FUNCTIONS.md` and
+`.specs/interface/EVENTS.md` during project setup (see project-setup.md Step 5g).
+Update it whenever the spec changes — the interface is the spec's Solidity
+representation, not a derived artifact.
+
 ### NatSpec
 
-Use `/// @inheritdoc IFoo` in implementation contracts; never duplicate interface
-NatSpec. NatSpec lives in the interface.
+Use `/// @inheritdoc IContractName` in implementation contracts; never duplicate
+interface NatSpec. NatSpec lives in the interface.
 
 Add `/// @dev` to any function with behavior that looks like a bug — callable after
 finalization, no access guard, etc. The comment documents deliberate intent and

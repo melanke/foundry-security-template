@@ -12,12 +12,18 @@ contract CounterTest is Test {
         counter.setNumber(0);
     }
 
-    function test_Increment() public {
+    /// @dev Given: counter is at zero. When: increment called. Then: number is
+    /// 1.
+    function test_Given_counter0_When_increment_Then_number1() public {
         counter.increment();
         assertEq(counter.number(), 1);
     }
 
-    function testFuzz_SetNumber(uint256 x) public {
+    /// @dev Given: any value x. When: setNumber(x) called. Then: number equals
+    /// x.
+    function testFuzz_Given_anyValue_When_setNumber_Then_numberMatchesInput(uint256 x)
+        public
+    {
         counter.setNumber(x);
         assertEq(counter.number(), x);
     }

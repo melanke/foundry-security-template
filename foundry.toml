@@ -11,6 +11,8 @@ optimizer = true
 #   10_000+ → cheapest repeated calls (for pure math libraries)
 optimizer_runs = 200
 ast = true
+# ast = true: required by crytic-compile (used by Slither, Medusa, Echidna, Halmos).
+# Without it, static analysis and fuzzing pipelines fail. Do not remove.
 
 [profile.coverage]
 # Coverage distorts gas readings; run gas-benchmark tests only under the default profile.

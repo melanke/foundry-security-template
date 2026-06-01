@@ -1,5 +1,5 @@
 [lintspec]
-paths = []
+paths = ["src"]
 exclude = []
 inheritdoc = false
 # inheritdoc: require @inheritdoc on items that implement an interface method.

@@ -16,23 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install lintspec
-        run: |
-          LINTSPEC_VERSION="0.17.0"
-          # Pin lintspec like any other tool — same discipline as Foundry and Medusa.
-          # The beeb/lintspec action always installs the latest binary regardless of
-          # its tag, so we install directly to guarantee the pinned version.
-          # Update LINTSPEC_VERSION intentionally when upgrading locally.
-          curl -L \
-            "https://github.com/beeb/lintspec/releases/download/v${LINTSPEC_VERSION}/lintspec-x86_64-unknown-linux-gnu.tar.gz" \
-            -o /tmp/lintspec.tar.gz
-          tar -xzf /tmp/lintspec.tar.gz -C /usr/local/bin
-          lintspec --version
-
-      - name: Check NatSpec completeness
-        run: lintspec src/
-        # Reads .lintspec.toml from the repo root for per-project configuration.
-        # lintspec enforces @notice, @param, and @return on every public and
-        # external function, event, error, and struct. Inline PR annotations
-        # show exactly which tag is missing on which line.
-        # Fails with exit code 1 if any configured NatSpec tags are missing.
+      - uses: beeb/lintspec@v0.12.2
+        with:
+          fail-on-problem: "true"
+          # paths intentionally omitted — configured in .lintspec.toml as ["src"].
+          # Passing paths: "src" here injects LS_LINTSPEC_PATHS as a plain string;
+          # lintspec >=0.17.0 requires paths to be an array and rejects the string,
+          # causing an InvalidType error and cascading jq parse failures.
+          # Reads .lintspec.toml from the repo root for per-project configuration.

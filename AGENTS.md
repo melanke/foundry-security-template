@@ -62,6 +62,17 @@ requires NatSpec.
 // slither-disable-next-line reentrancy-no-eth
 ```
 
+**Semgrep findings**:
+- Actionable: fix the root cause before suppressing anything.
+- False positive or accepted risk: suppress inline with a reason comment on the line
+  above. No `KNOWN_ISSUES.md` entry required, but the reason must be explicit.
+
+```solidity
+// Snapshot taken after all state is settled; no external call between snapshot and use.
+// nosemgrep: exact-balance-check
+uint256 snapshot = token.balanceOf(address(this));
+```
+
 ### Foundry configuration
 
 Set these in `foundry.toml` at project start — retrofitting is noisy:

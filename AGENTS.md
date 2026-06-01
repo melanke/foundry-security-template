@@ -30,6 +30,8 @@ forge fmt                      # auto-fix formatting first
 npx lintspec src/              # NatSpec completeness — may add code, must come before build
 forge build --sizes            # full build + check contract sizes (24kB EIP-170 limit)
 slither src/                   # static analysis
+git clone --depth 1 https://github.com/Decurity/semgrep-smart-contracts /tmp/decurity-semgrep 2>/dev/null || true
+semgrep --config /tmp/decurity-semgrep/solidity/ --config .semgrep/ src/
 ```
 
 Fix every issue from each step. Then **repeat the full cycle from `forge fmt`** — 
@@ -289,8 +291,9 @@ Before every commit, all of the following must be true:
 2. `npx lintspec src/` passes
 3. `forge build --sizes` is clean — zero warnings, no contract exceeds 24kB
 4. `slither src/` has no unacknowledged findings (all findings either fixed or in `KNOWN_ISSUES.md`)
-5. `forge test` passes
-6. `forge coverage` is at 90% or above for the contracts touched by this commit
+5. `semgrep --config /tmp/decurity-semgrep/solidity/ --config .semgrep/ src/` has no findings (suppress false positives inline with `// nosemgrep: rule-id`)
+6. `forge test` passes
+7. `forge coverage` is at 90% or above for the contracts touched by this commit
 
 If any of these fails, fix it before committing. Do not commit a partial or broken
 state — the pre-commit hook enforces `forge fmt --check` and `forge build`, but

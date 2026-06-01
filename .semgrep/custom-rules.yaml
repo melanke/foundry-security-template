@@ -1,0 +1,46 @@
+rules:
+  - id: missing-disable-initializers
+    message: >
+      UUPS implementation constructor must call _disableInitializers() to
+      prevent an attacker from initializing the implementation directly. See AGENTS.md.
+    languages: [solidity]
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          contract $C is ..., UUPSUpgradeable, ... {
+            ...
+          }
+      - pattern: "constructor(...) { ... }"
+      - pattern-not: |
+          constructor(...) {
+            ...
+            _disableInitializers();
+            ...
+          }
+
+  - id: safetransfer-in-loop
+    message: >
+      Bare token transfer inside a loop — one blacklisted or reverting recipient
+      permanently freezes the operation. Use try/escrow pattern instead. See AGENTS.md.
+    languages: [solidity]
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern-inside: "for (...) { ... }"
+          - pattern-inside: "while (...) { ... }"
+      - pattern-either:
+          - pattern: $TOKEN.safeTransfer(...)
+          - pattern: $TOKEN.safeTransferFrom(...)
+          - pattern: $TOKEN.transfer(...)
+
+  - id: revert-in-loop
+    message: >
+      revert inside a loop over shared state — a single bad entry bricks every
+      future call. Use skip-and-cleanup instead. See AGENTS.md.
+    languages: [solidity]
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern-inside: "for (...) { ... }"
+          - pattern-inside: "while (...) { ... }"
+      - pattern: "revert $ERR(...)"

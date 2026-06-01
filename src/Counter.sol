@@ -17,6 +17,6 @@ contract Counter {
 
     /// @notice Increments the counter by one
     function increment() public {
-        number++;
+        ++number;
     }
 }

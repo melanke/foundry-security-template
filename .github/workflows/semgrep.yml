@@ -1,0 +1,40 @@
+name: Semgrep
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  semgrep:
+    name: Static Analysis (Semgrep)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install semgrep
+        run: pip install semgrep
+
+      - name: Clone Decurity rules
+        run: git clone --depth 1 https://github.com/Decurity/semgrep-smart-contracts /tmp/decurity-semgrep
+
+      - name: Run semgrep
+        run: |
+          semgrep \
+            --config /tmp/decurity-semgrep/solidity/ \
+            --config .semgrep/ \
+            --error \
+            src/
+        # Two rule sources run together:
+        #   1. Decurity/semgrep-smart-contracts — curated DeFi/Solidity rules
+        #   2. .semgrep/ — project-specific rules derived from AGENTS.md
+        #
+        # Triage workflow for every finding:
+        #   1. Actionable → fix it
+        #   2. False positive or accepted risk → suppress inline with a comment:
+        #      // nosemgrep: rule-id
+        #
+        # Unlike Slither suppressions, semgrep false positives do NOT need a
+        # KNOWN_ISSUES.md entry — inline suppression with a brief comment is enough.
